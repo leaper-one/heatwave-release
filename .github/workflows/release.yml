@@ -28,11 +28,11 @@ jobs:
       - name: Download Quorum Binary for macos
         if: matrix.platform == 'macos-latest'
         run: |
-          curl -L "https://unpkg.com/quorum-bin@2.0.3/quorum_darwin" -o ./binaries/quorum-aarch64-apple-darwin --create-dirs
-          chmod +x ./binaries/quorum-aarch64-apple-darwin
+          curl -L "https://unpkg.com/quorum-bin@2.0.3/quorum_darwin" -o ./binaries/quorum-x86_64-apple-darwin --create-dirs
+          chmod +x ./binaries/quorum-x86_64-apple-darwin
           mkdir -p ./frontend/binaries
-          cp ./binaries/quorum-aarch64-apple-darwin ./frontend/binaries/quorum-aarch64-apple-darwin
-          cp ./binaries/quorum-aarch64-apple-darwin ./frontend/src-tauri/binaries/quorum-aarch64-apple-darwin
+          cp ./binaries/quorum-x86_64-apple-darwin ./frontend/binaries/quorum-x86_64-apple-darwin
+          cp ./binaries/quorum-x86_64-apple-darwin ./frontend/src-tauri/binaries/quorum-x86_64-apple-darwin
 
       - name: Download Quorum Binary and Dependencies for linux
         if: matrix.platform == 'ubuntu-20.04'
