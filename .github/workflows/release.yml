@@ -1,0 +1,74 @@
+name: Release
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions: write-all
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+          ref: ${{ github.ref_name }}
+          ssh-key: ${{ secrets.SSH_KEY }}
+          ssh-strict: false
+          repository: ${{ secrets.REPOSITORY }}
+          github-server-url: ${{ secrets.SERVER_URL }}
+
+      - name: Download Quorum Binary for macos
+        if: matrix.platform == 'macos-latest'
+        run: |
+          curl -L "https://unpkg.com/quorum-bin@2.0.3/quorum_darwin" -o ./binaries/quorum-aarch64-apple-darwin --create-dirs
+          chmod +x ./binaries/quorum-aarch64-apple-darwin
+          mkdir -p ./frontend/binaries
+          cp ./binaries/quorum-aarch64-apple-darwin ./frontend/binaries/quorum-x86_64-apple-darwin
+          cp ./binaries/quorum-aarch64-apple-darwin ./frontend/src-tauri/binaries/quorum-x86_64-apple-darwin
+
+      - name: Download Quorum Binary for windows
+        if: matrix.platform == 'windows-latest'
+        run: |
+          curl -L "https://unpkg.com/quorum-bin@2.0.3/quorum_win.exe" -o ./frontend/src-tauri/binaries/quorum-x86_64-pc-windows-msvc.exe
+
+      - name: Rust setup
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './frontend/src-tauri -> target'
+
+      - name: Sync node version and setup cache
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+          cache: 'yarn'
+          cache-dependency-path: './frontend/yarn.lock'
+
+      - name: Install frontend dependencies
+        working-directory: './frontend'
+        run: yarn install
+
+      - name: Build the app
+        uses: tauri-apps/tauri-action@v0
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'Heatwave v__VERSION__'
+          releaseBody: 'See the assets to download and install this version.'
+          releaseDraft: true
+          prerelease: false
+          projectPath: './frontend'
+
