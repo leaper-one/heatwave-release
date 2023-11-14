@@ -37,7 +37,10 @@ jobs:
       - name: Download Quorum Binary for windows
         if: matrix.platform == 'windows-latest'
         run: |
-          curl -L "https://unpkg.com/quorum-bin@2.0.3/quorum_win.exe" -o ./frontend/src-tauri/binaries/quorum-x86_64-pc-windows-msvc.exe
+          curl -L "https://unpkg.com/quorum-bin@2.0.3/quorum_win.exe" -o ./binaries/quorum-x86_64-pc-windows-msvc.exe --create-dirs
+          mkdir -p ./frontend/binaries
+          cp ./binaries/quorum-x86_64-pc-windows-msvc.exe ./frontend/binaries/quorum-x86_64-pc-windows-msvc.exe
+          cp ./binaries/quorum-x86_64-pc-windows-msvc.exe ./frontend/src-tauri/binaries/quorum-x86_64-pc-windows-msvc.exe
 
       - name: Rust setup
         uses: dtolnay/rust-toolchain@stable
