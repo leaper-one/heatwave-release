@@ -21,8 +21,7 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
           ref: ${{ github.ref_name }}
-          ssh-key: ${{ secrets.SSH_KEY }}
-          ssh-strict: false
+          token: ${{ secrets.TOKEN }}
           repository: ${{ secrets.REPOSITORY }}
           github-server-url: ${{ secrets.SERVER_URL }}
 
